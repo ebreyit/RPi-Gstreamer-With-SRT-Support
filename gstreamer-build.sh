@@ -2,6 +2,9 @@
 set -e
 
 BRANCH="1.16"
+RPI="1"
+echo "RPI BUILD!"
+
 if grep -q BCM2708 /proc/cpuinfo; then
     echo "RPI BUILD!"
     RPI="1"
@@ -144,18 +147,14 @@ if [[ $BUILD_OMX_SUPPORT -eq 1 ]]; then
 	cd gst-omx
 	sudo make uninstall || true
 	git pull
-	if [[ $RPI -eq 1 ]]; then
+	
 	    export LDFLAGS='-L/opt/vc/lib' \
 	    CFLAGS='-I/opt/vc/include -I/opt/vc/include/IL -I/opt/vc/include/interface/vcos/pthreads -I/opt/vc/include/interface/vmcs_host/linux -I/opt/vc/include/IL' \
 	    CPPFLAGS='-I/opt/vc/include -I/opt/vc/include/IL -I/opt/vc/include/interface/vcos/pthreads -I/opt/vc/include/interface/vmcs_host/linux -I/opt/vc/include/IL'
 	    ./autogen.sh --disable-gtk-doc --with-omx-target=rpi
 	    # fix for glcontext errors and openexr redundant declarations
 	    make CFLAGS+="-Wno-error -Wno-redundant-decls" LDFLAGS+="-L/opt/vc/lib"
-	else
-	    ./autogen.sh --disable-gtk-doc --with-omx-target=bellagio
-	    # fix for glcontext errors and openexr redundant declarations
-	    make CFLAGS+="-Wno-error -Wno-redundant-decls"
-	fi
+	
 	sudo make install
 	cd ..
 fi
