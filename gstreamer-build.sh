@@ -15,10 +15,10 @@ exec > >(tee build_gstreamer.log)
 exec 2>&1
 
 # Update and Upgrade the Pi, otherwise the build may fail due to inconsistencies
-grep -q BCM2708 /proc/cpuinfo && sudo apt update && sudo apt upgrade -y 
+grep -q BCM2708 /proc/cpuinfo && sudo apt-get update && sudo apt-get upgrade -y 
 
 # Get the required libraries
-sudo apt install -y git screen build-essential autotools-dev automake autoconf \
+sudo apt-get install -y git screen build-essential autotools-dev automake autoconf \
                                     libtool autopoint libxml2-dev zlib1g-dev libglib2.0-dev \
                                     pkg-config bison flex python3 git gtk-doc-tools libasound2-dev \
                                     libgudev-1.0-dev libxt-dev libvorbis-dev libcdparanoia-dev \
