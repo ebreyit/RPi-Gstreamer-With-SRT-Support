@@ -7,7 +7,7 @@ if grep -q BCM2708 /proc/cpuinfo; then
     RPI="1"
 fi
 
-BUILD_PYTHON_BINDINGS="0"
+BUILD_PYTHON_BINDINGS="1"
 BUILD_OMX_SUPPORT="1"
 
 # Create a log file of the build as well as displaying the build on the tty as it runs
@@ -127,7 +127,7 @@ cd ..
 
 if [[ $BUILD_PYTHON_BINDINGS -eq 1 ]]; then
 	#python bindings
-	python bindings
+	#python bindings
 	cd gst-python
 	git checkout -t origin/$BRANCH || true
 	export LD_LIBRARY_PATH=/usr/local/lib/ 
@@ -139,7 +139,7 @@ if [[ $BUILD_PYTHON_BINDINGS -eq 1 ]]; then
 	cd ..
 fi
 
-if [[ $BUILD_PYTHON_BINDINGS -eq 1 ]]; then
+if [[ $BUILD_OMX_SUPPORT -eq 1 ]]; then
 	#omx support
 	cd gst-omx
 	sudo make uninstall || true
