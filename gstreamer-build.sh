@@ -54,7 +54,11 @@ sudo apt-get install -y git screen build-essential autotools-dev automake autoco
                                     libcdio-dev libdvdread-dev libmad0-dev libmp3lame-dev \
                                     libmpeg2-4-dev libopencore-amrnb-dev libopencore-amrwb-dev \
                                     libsidplay1-dev libtwolame-dev libx264-dev libusb-1.0 \
-                                    python-gi-dev yasm python3-dev libgirepository1.0-dev gettext
+                                    python-gi-dev yasm python3-dev libgirepository1.0-dev gettext \
+				    tclsh cmake libssl-dev build-essential
+
+
+				    
 
 # get the repos if they're not already there
 cd $HOME
@@ -64,17 +68,26 @@ cd gstreamer-src
 cd gstreamer
 
 # get repos if they are not there yet
+[ ! -d srt ] && git clone https://github.com/Haivision/srt
 [ ! -d gstreamer ] && git clone git://anongit.freedesktop.org/git/gstreamer/gstreamer
 [ ! -d gst-plugins-base ] && git clone git://anongit.freedesktop.org/git/gstreamer/gst-plugins-base
 [ ! -d gst-plugins-good ] && git clone git://anongit.freedesktop.org/git/gstreamer/gst-plugins-good
 [ ! -d gst-plugins-bad ] && git clone git://anongit.freedesktop.org/git/gstreamer/gst-plugins-bad
 [ ! -d gst-plugins-ugly ] && git clone git://anongit.freedesktop.org/git/gstreamer/gst-plugins-ugly
 [ ! -d gst-libav ] && git clone git://anongit.freedesktop.org/git/gstreamer/gst-libav
-[ ! -d gst-omx ] && git clone git://anongit.freedesktop.org/git/gstreamer/gst-omx
 [ ! -d gst-python ] && git clone git://anongit.freedesktop.org/git/gstreamer/gst-python
 
 
 export LD_LIBRARY_PATH=/usr/local/lib/
+# Get SRT Source and Compile
+cd srt
+sudo make uninstall || true
+./configure
+make
+sudo make install
+cd ..
+
+
 # checkout branch (default=master) and build & install
 cd gstreamer
 git checkout -t origin/$BRANCH || true
@@ -130,7 +143,7 @@ if [[ $RPI -eq 1 ]]; then
     export LDFLAGS='-L/opt/vc/lib' \
     CFLAGS='-I/opt/vc/include -I/opt/vc/include/interface/vcos/pthreads -I/opt/vc/include/interface/vmcs_host/linux' \
     CPPFLAGS='-I/opt/vc/include -I/opt/vc/include/interface/vcos/pthreads -I/opt/vc/include/interface/vmcs_host/linux'
-    ./autogen.sh --disable-gtk-doc --disable-examples --disable-x11 --disable-glx --disable-glx --disable-opengl
+    ./autogen.sh --disable-gtk-doc --disable-examples --disable-x11 --disable-glx --disable-glx --disable-opengl 
     make -j4 CFLAGS+="-Wno-error -Wno-redundant-decls -I/opt/vc/include -I/opt/vc/include/interface/vcos/pthreads -I/opt/vc/include/interface/vmcs_host/linux" \
       CPPFLAGS+="-Wno-error -Wno-redundant-decls -I/opt/vc/include -I/opt/vc/include/interface/vcos/pthreads -I/opt/vc/include/interface/vmcs_host/linux" \
       CXXFLAGS+="-Wno-redundant-decls" LDFLAGS+="-L/opt/vc/lib"
