@@ -18,20 +18,14 @@ BRANCH="1.16"
 RPI="1"
 echo "RPI BUILD!"
 
-if grep -q BCM2708 /proc/cpuinfo; then
-    echo "RPI BUILD!"
-    RPI="1"
-fi
-
 BUILD_PYTHON_BINDINGS="0"
-BUILD_OMX_SUPPORT="0"
 
 # Create a log file of the build as well as displaying the build on the tty as it runs
 exec > >(tee build_gstreamer.log)
 exec 2>&1
 
 # Update and Upgrade the Pi, otherwise the build may fail due to inconsistencies
-grep -q BCM2708 /proc/cpuinfo && sudo apt-get update && sudo apt-get upgrade -y 
+sudo apt-get update && sudo apt-get upgrade -y 
 
 # Get the required libraries
 sudo apt-get install -y git screen build-essential autotools-dev automake autoconf \
@@ -82,6 +76,7 @@ export LD_LIBRARY_PATH=/usr/local/lib/
 # Get SRT Source and Compile
 cd srt
 sudo make uninstall || true
+make clean
 ./configure
 make
 sudo make install
@@ -91,6 +86,7 @@ cd ..
 # checkout branch (default=master) and build & install
 cd gstreamer
 git checkout -t origin/$BRANCH || true
+make clean
 sudo make uninstall || true
 git pull
 ./autogen.sh --disable-gtk-doc
@@ -100,6 +96,7 @@ cd ..
 
 cd gst-plugins-base
 git checkout -t origin/$BRANCH || true
+make clean
 sudo make uninstall || true
 git pull
 ./autogen.sh --disable-gtk-doc
@@ -109,6 +106,7 @@ cd ..
 
 cd gst-plugins-good
 git checkout -t origin/$BRANCH || true
+make clean
 sudo make uninstall || true
 git pull
 ./autogen.sh --disable-gtk-doc
@@ -119,6 +117,7 @@ cd ..
 cd gst-plugins-ugly
 git checkout -t origin/$BRANCH || true
 sudo make uninstall || true
+make clean
 git pull
 ./autogen.sh --disable-gtk-doc
 make CFLAGS+="-Wno-error" -j4
@@ -137,9 +136,10 @@ cd ..
 cd gst-plugins-bad
 git checkout -t origin/$BRANCH || true
 sudo make uninstall || true
+make clean
 git pull
 # some extra flags on rpi
-if [[ $RPI -eq 1 ]]; then
+
     export LDFLAGS='-L/opt/vc/lib' \
     CFLAGS='-I/opt/vc/include -I/opt/vc/include/interface/vcos/pthreads -I/opt/vc/include/interface/vmcs_host/linux' \
     CPPFLAGS='-I/opt/vc/include -I/opt/vc/include/interface/vcos/pthreads -I/opt/vc/include/interface/vmcs_host/linux'
@@ -147,10 +147,7 @@ if [[ $RPI -eq 1 ]]; then
     make -j4 CFLAGS+="-Wno-error -Wno-redundant-decls -I/opt/vc/include -I/opt/vc/include/interface/vcos/pthreads -I/opt/vc/include/interface/vmcs_host/linux" \
       CPPFLAGS+="-Wno-error -Wno-redundant-decls -I/opt/vc/include -I/opt/vc/include/interface/vcos/pthreads -I/opt/vc/include/interface/vmcs_host/linux" \
       CXXFLAGS+="-Wno-redundant-decls" LDFLAGS+="-L/opt/vc/lib"
-else
-    ./autogen.sh --disable-gtk-doc
-    make CFLAGS+="-Wno-error -Wno-redundant-decls" CXXFLAGS+="-Wno-redundant-decls"
-fi
+
 sudo make install
 cd ..
 
@@ -164,24 +161,6 @@ if [[ $BUILD_PYTHON_BINDINGS -eq 1 ]]; then
 	git pull
 	PYTHON=/usr/bin/python3 ./autogen.sh
 	make
-	sudo make install
-	cd ..
-fi
-
-if [[ $BUILD_OMX_SUPPORT -eq 1 ]]; then
-	#omx support
-	cd gst-omx
-	git checkout -t origin/$BRANCH || true
-	sudo make uninstall || true
-	git pull
-		
-	    export LDFLAGS='-L/opt/vc/lib' \
-	    CFLAGS='-I/opt/vc/include -I/opt/vc/include/IL -I/opt/vc/include/interface/vcos/pthreads -I/opt/vc/include/interface/vmcs_host/linux -I/opt/vc/include/IL' \
-	    CPPFLAGS='-I/opt/vc/include -I/opt/vc/include/IL -I/opt/vc/include/interface/vcos/pthreads -I/opt/vc/include/interface/vmcs_host/linux -I/opt/vc/include/IL'
-	    ./autogen.sh --disable-gtk-doc --with-omx-target=rpi
-	    # fix for glcontext errors and openexr redundant declarations
-	    make CFLAGS+="-Wno-error -Wno-redundant-decls" LDFLAGS+="-L/opt/vc/lib"
-	
 	sudo make install
 	cd ..
 fi
