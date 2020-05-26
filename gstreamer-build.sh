@@ -1,6 +1,19 @@
 #!/bin/bash --debugger
 set -e
 
+# -i update the file
+# substitute string1 for string2 globally
+sudo sed -i 's/CONF_SWAPSIZE=100/CONF_SWAPSIZE=2048/g' /etc/dphys-swapfile
+
+sudo /etc/init.d/dphys-swapfile stop
+sudo /etc/init.d/dphys-swapfile start
+
+# -i update the file
+# $ regex for end of the file
+# a append
+# then the text to append.
+# sudo sed -i '$a gpu_mem=128' /boot/config.txt
+
 BRANCH="1.16"
 RPI="1"
 echo "RPI BUILD!"
@@ -10,7 +23,7 @@ if grep -q BCM2708 /proc/cpuinfo; then
     RPI="1"
 fi
 
-BUILD_PYTHON_BINDINGS="1"
+BUILD_PYTHON_BINDINGS="0"
 BUILD_OMX_SUPPORT="1"
 
 # Create a log file of the build as well as displaying the build on the tty as it runs
