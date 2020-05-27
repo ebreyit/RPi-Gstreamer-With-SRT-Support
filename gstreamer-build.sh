@@ -48,7 +48,7 @@ sudo apt-get install -y git screen build-essential autotools-dev automake autoco
                                     libcdio-dev libdvdread-dev libmad0-dev libmp3lame-dev \
                                     libmpeg2-4-dev libopencore-amrnb-dev libopencore-amrwb-dev \
                                     libsidplay1-dev libtwolame-dev libx264-dev libusb-1.0 \
-                                    python-gi-dev yasm python3-dev libgirepository1.0-dev gettext \
+                                    python-gi-dev yasm python3-dev python-dev libgirepository1.0-dev gettext \
 				    tclsh cmake libssl-dev build-essential
 
 
