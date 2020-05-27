@@ -18,7 +18,7 @@ BRANCH="1.16"
 RPI="1"
 echo "RPI BUILD!"
 
-BUILD_PYTHON_BINDINGS="0"
+BUILD_PYTHON_BINDINGS="1"
 
 # Create a log file of the build as well as displaying the build on the tty as it runs
 exec > >(tee build_gstreamer.log)
@@ -70,6 +70,7 @@ cd gstreamer
 [ ! -d gst-plugins-ugly ] && git clone git://anongit.freedesktop.org/git/gstreamer/gst-plugins-ugly
 [ ! -d gst-libav ] && git clone git://anongit.freedesktop.org/git/gstreamer/gst-libav
 [ ! -d gst-python ] && git clone git://anongit.freedesktop.org/git/gstreamer/gst-python
+[ ! -d gst-rtsp-server] && git clone git://anongit.freedesktop.org/gstreamer/gst-rtsp-server
 
 
 export LD_LIBRARY_PATH=/usr/local/lib/
@@ -81,6 +82,15 @@ make clean
 make
 sudo make install
 cd ..
+
+# Get gst-rtsp-server Source and Compile
+#cd gst-rtsp-server
+#sudo make uninstall || true
+#make clean
+#./configure
+#make
+#sudo make install
+#cd ..
 
 
 # checkout branch (default=master) and build & install
@@ -159,7 +169,8 @@ if [[ $BUILD_PYTHON_BINDINGS -eq 1 ]]; then
 	export LD_LIBRARY_PATH=/usr/local/lib/ 
 	sudo make uninstall || true
 	git pull
-	PYTHON=/usr/bin/python3 ./autogen.sh
+	PYTHON=/usr/bin/python3
+	./autogen.sh
 	make
 	sudo make install
 	cd ..
