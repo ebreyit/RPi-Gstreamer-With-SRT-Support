@@ -38,10 +38,28 @@
  
  gst-launch-1.0  -e videotestsrc num-buffers=1500 ! 'video/x-raw,width=720,height=405,framerate=25/1,format=NV12,colorimetry=bt709' !  v4l2h264enc output-io-mode=4  ! h264parse ! rtph264pay ! udpsink host=10.50.0.429 port=20000
  
- gst-launch-1.0  -e videotestsrc num-buffers=1500 ! 'video/x-raw,width=720,height=405,framerate=25/1,format=NV12,colorimetry=bt709' !  v4l2h264enc output-io-mode=4  ! h264parse ! mpegtsmux ! udpsink host=10.50.0.29 port=20000
+ gst-launch-1.0  -e videotestsrc num-buffers=1500 ! 'video/x-raw,width=720,height=405,framerate=25/1,format=NV12,colorimetry=bt709' !  v4l2h264enc output-io-mode=4  ! h264parse config-interval=1 ! mpegtsmux ! udpsink host=10.50.0.29 port=20000
  
   gst-launch-1.0  -e videotestsrc num-buffers=1500 ! 'video/x-raw,width=720,height=405,framerate=25/1,format=NV12,colorimetry=bt709' !  v4l2h264enc output-io-mode=4  ! h264parse ! mpegtsmux alignment=7 ! srtsink uri=srt://10.50.0.29:20000?mode=caller latency=100
  
  gst-launch-1.0 -v videotestsrc ! video/x-raw, height=1080, width=1920 ! videoconvert ! x264enc tune=zerolatency ! video/x-h264, profile=high ! mpegtsmux ! srtsink uri=srt://10.50.0.29:20000?mode=caller
  
   gst-launch-1.0 srtsrc uri=srt://:8888 ! decodebin ! autovideosink
+  
+  
+  Insert SPS and PPS at IDR
+gst-launch-1.0 videotestsrc num-buffers=200 ! \
+'video/x-raw, width=(int)1280, height=(int)720, \
+format=(string)I420' ! omxh264enc insert-sps-pps=1 ! qtmux ! \
+filesink location=test.mp4 -e
+Accelerated GStreamer User Guide
+Accelerated GStreamer User Guide DA_07303-4.0 | 16
+If enabled, a sequence parameter set (SPS) and a picture parameter set (PPS) are inserted
+before each IDR frame in the H.264/H.265 stream.
+
+
+gst-launch-1.0 \
+    uridecodebin uri="$uri" \
+    ! omxh264enc ! h264parse config-interval=1 \
+    ! mpegtsmux \
+    ! tcpserversink host=134.202.84.72 port=1234
